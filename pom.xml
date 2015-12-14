@@ -40,5 +40,6 @@
     <url>http://basis-technology-corp.github.io/rosette-common-java-api</url>
     <modules>
       <module>feature</module>
+      <module>itest</module>
     </modules>
 </project>
