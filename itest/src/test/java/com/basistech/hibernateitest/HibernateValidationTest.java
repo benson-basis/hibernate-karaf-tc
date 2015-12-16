@@ -14,6 +14,7 @@
 
 package com.basistech.hibernateitest;
 
+import org.apache.karaf.features.BootFinished;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.hibernate.validator.cfg.ConstraintMapping;
@@ -27,11 +28,13 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
+import javax.inject.Inject;
 import javax.validation.BootstrapConfiguration;
 import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolation;
@@ -52,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
@@ -78,6 +82,9 @@ public class HibernateValidationTest {
         }
     }
 
+    @Inject
+    BootFinished bootFinished;
+
     @Configuration
     public static Option[] configuration() {
         MavenArtifactUrlReference karafUrl
@@ -91,8 +98,7 @@ public class HibernateValidationTest {
                         .useDeployFolder(false)
                         //.runEmbedded(true)
                         .unpackDirectory(new File("target/pax/")),
-                //DO NOT COMMIT WITH THIS LINE ENABLED!!!
-                //KarafDistributionOption.keepRuntimeFolder(),
+                KarafDistributionOption.keepRuntimeFolder(),
                 //debugConfiguration(), // nor this
                 systemProperty("java.awt.headless").value("true"),
                 features(maven().groupId("com.basistech").artifactId("hibernate-validation")
@@ -101,7 +107,9 @@ public class HibernateValidationTest {
                         .version("0.0.1-SNAPSHOT"),
                         "hibernate-validation"),
                 logLevel(LogLevelOption.LogLevel.INFO),
-                // Do we need the junit stuff?
+                junitBundles(),
+                systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
+                systemProperty("org.ops4j.pax.exam.rbc.rmi.host").value("localhost")
         };
     }
 

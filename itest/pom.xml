@@ -52,6 +52,13 @@
             <version>5.2.2.Final</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>apache-karaf</artifactId>
+            <version>4.0.2</version>
+            <type>zip</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
     </build>
