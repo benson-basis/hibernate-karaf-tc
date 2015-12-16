@@ -32,9 +32,9 @@
             <version>2.6-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.hibernate-validator</artifactId>
-            <version>5.0.2.Final_1</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.2.2.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -76,6 +76,11 @@
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>stax2-api</artifactId>
             <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.3</version>
         </dependency>
 
     </dependencies>

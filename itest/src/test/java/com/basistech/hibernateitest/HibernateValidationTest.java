@@ -14,6 +14,13 @@
 
 package com.basistech.hibernateitest;
 
+import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.HibernateValidatorConfiguration;
+import org.hibernate.validator.cfg.ConstraintMapping;
+import org.hibernate.validator.spi.constraintdefinition.ConstraintDefinitionContributor;
+import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
+import org.hibernate.validator.spi.time.TimeProvider;
+import org.hibernate.validator.spi.valuehandling.ValidatedValueUnwrapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +32,24 @@ import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
+import javax.validation.BootstrapConfiguration;
+import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolation;
+import javax.validation.MessageInterpolator;
+import javax.validation.ParameterNameProvider;
+import javax.validation.TraversableResolver;
 import javax.validation.Validation;
+import javax.validation.ValidationProviderResolver;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
+import javax.validation.spi.BootstrapState;
+import javax.validation.spi.ConfigurationState;
+import javax.validation.spi.ValidationProvider;
 import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -89,6 +109,27 @@ public class HibernateValidationTest {
     public void defaultProvider() {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<ValidateMe>> violations = validator.validate(new ValidateMe(0));
-        Assert.assertEquals(0, violations.size());
+        Assert.assertEquals(1, violations.size());
+    }
+
+    @Test
+    public void withConfiguration() {
+        HibernateValidatorConfiguration configuration =
+                Validation.byProvider(HibernateValidator.class)
+                         .providerResolver(new ValidationProviderResolver() {
+                             @Override
+                             public List<ValidationProvider<?>> getValidationProviders() {
+                                 ValidationProvider<HibernateValidatorConfiguration> prov = new HibernateValidator();
+                                 List<ValidationProvider<?>> provs = new ArrayList<>();
+                                 provs.add(prov);
+                                 return provs;
+                             }
+                         })
+                        .configure();
+        configuration.externalClassLoader(Thread.currentThread().getContextClassLoader());
+        Validator validator = configuration.buildValidatorFactory().getValidator();
+        Thread.currentThread().setContextClassLoader(null);
+        Set<ConstraintViolation<ValidateMe>> violations = validator.validate(new ValidateMe(0));
+        Assert.assertEquals(1, violations.size());
     }
 }
