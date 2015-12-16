@@ -14,53 +14,30 @@
 
 package com.basistech.hibernateitest;
 
-import org.apache.karaf.features.BootFinished;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
-import org.hibernate.validator.cfg.ConstraintMapping;
-import org.hibernate.validator.spi.constraintdefinition.ConstraintDefinitionContributor;
-import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
-import org.hibernate.validator.spi.time.TimeProvider;
-import org.hibernate.validator.spi.valuehandling.ValidatedValueUnwrapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
-import org.ops4j.pax.exam.karaf.options.LogLevelOption;
-import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
-import javax.inject.Inject;
-import javax.validation.BootstrapConfiguration;
-import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolation;
-import javax.validation.MessageInterpolator;
-import javax.validation.ParameterNameProvider;
-import javax.validation.TraversableResolver;
 import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
-import javax.validation.spi.BootstrapState;
-import javax.validation.spi.ConfigurationState;
 import javax.validation.spi.ValidationProvider;
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 /**
  *
@@ -82,31 +59,48 @@ public class HibernateValidationTest {
         }
     }
 
-    @Inject
-    BootFinished bootFinished;
-
     @Configuration
     public static Option[] configuration() {
-        MavenArtifactUrlReference karafUrl
-                = maven().groupId("org.apache.karaf").artifactId("apache-karaf").version("4.0.2")
-                .type("tar.gz");
         return new Option[] {
-                karafDistributionConfiguration()
-                        .frameworkUrl(karafUrl)
-                        .karafVersion("4.0.2")
-                        .name("Apache Karaf")
-                        .useDeployFolder(false)
-                        //.runEmbedded(true)
-                        .unpackDirectory(new File("target/pax/")),
-                KarafDistributionOption.keepRuntimeFolder(),
+                mavenBundle().groupId("javax.validation")
+                        .artifactId("validation-api")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.jboss.logging")
+                        .artifactId("jboss-logging")
+                        .versionAsInProject(),
+                mavenBundle().groupId("com.fasterxml")
+                        .artifactId("classmate")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.hibernate")
+                .artifactId("hibernate-validator")
+                .versionAsInProject(),
+                mavenBundle().groupId("org.glassfish")
+                        .artifactId("javax.el")
+                        .versionAsInProject(),
+                mavenBundle().groupId("javax.el")
+                        .artifactId("javax.el-api")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.apache.servicemix.bundles")
+                        .artifactId("org.apache.servicemix.bundles.joda-time")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.apache.servicemix.bundles")
+                        .artifactId("org.apache.servicemix.bundles.jsoup")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.apache.servicemix.specs")
+                        .artifactId("org.apache.servicemix.specs.stax-api-1.2")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.codehaus.woodstox")
+                        .artifactId("woodstox-core-asl")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.codehaus.woodstox")
+                        .artifactId("stax2-api")
+                        .versionAsInProject(),
+                mavenBundle().groupId("org.apache.logging.log4j")
+                        .artifactId("log4j-api")
+                        .versionAsInProject(),
+
                 //debugConfiguration(), // nor this
                 systemProperty("java.awt.headless").value("true"),
-                features(maven().groupId("com.basistech").artifactId("hibernate-validation")
-                        .classifier("features")
-                        .type("xml")
-                        .version("0.0.1-SNAPSHOT"),
-                        "hibernate-validation"),
-                logLevel(LogLevelOption.LogLevel.INFO),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
                 systemProperty("org.ops4j.pax.exam.rbc.rmi.host").value("localhost")
