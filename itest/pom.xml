@@ -27,6 +27,7 @@
         <pax.exam.version>4.7.0</pax.exam.version>
         <pax.url.version>2.4.3</pax.url.version>
         <slf4j.version>1.7.5</slf4j.version>
+        <pax-logging-version>1.8.4</pax-logging-version>
     </properties>
     <dependencies>
         <dependency>
@@ -99,9 +100,26 @@
             <version>1.1.0.Final</version>
         </dependency>
         <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.3.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+        <!--
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.hibernate-validator</artifactId>
             <version>5.0.2.Final_1</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.2.2.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -143,6 +161,21 @@
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>stax2-api</artifactId>
             <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>${pax-logging-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-service</artifactId>
+            <version>${pax-logging-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+            <version>${pax-logging-version}</version>
         </dependency>
     </dependencies>
     <build>

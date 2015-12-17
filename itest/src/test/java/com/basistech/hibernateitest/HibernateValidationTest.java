@@ -64,9 +64,26 @@ public class HibernateValidationTest {
                 mavenBundle().groupId("com.fasterxml")
                         .artifactId("classmate")
                         .versionAsInProject(),
-                mavenBundle().groupId("org.apache.servicemix.bundles")
-                .artifactId("org.apache.servicemix.bundles.hibernate-validator")
-                .versionAsInProject(),
+//                mavenBundle().groupId("org.apache.servicemix.bundles")
+//                .artifactId("org.apache.servicemix.bundles.hibernate-validator")
+//                .versionAsInProject(),
+                mavenBundle().groupId("org.hibernate")
+                  .artifactId("hibernate-validator")
+                  .versionAsInProject(),
+                mavenBundle().groupId("org.jboss.logging")
+                        .artifactId("jboss-logging")
+                        .versionAsInProject(),
+               /* mavenBundle().groupId("org.apache.logging.log4j")
+                        .artifactId("log4j-api")
+                        .versionAsInProject(),
+                mavenBundle()
+                        .artifactId("pax-logging-log4j2")
+                        .groupId("org.ops4j.pax.logging")
+                        .versionAsInProject(),
+                mavenBundle()
+                        .artifactId("pax-logging-api")
+                        .groupId("org.ops4j.pax.logging")
+                        .versionAsInProject(),*/
                 mavenBundle().groupId("org.glassfish")
                         .artifactId("javax.el")
                         .versionAsInProject(),
