@@ -14,10 +14,12 @@
 
 package com.basistech.hibernateitest;
 
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.HibernateValidatorConfiguration;
-import org.junit.Assert;
-import org.junit.Ignore;
+import com.basistech.hibernateitest.ms.MockService;
+import com.basistech.hibernateitest.ms.MockServiceActivator;
+import com.basistech.hibernateitest.ms.ValidateMe;
+import com.basistech.hibernateitest.mw.MockWhiteboard;
+import com.basistech.hibernateitest.mw.MockWhiteboardActivator;
+import com.basistech.hibernateitest.mw.MockWhiteboardService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -25,19 +27,19 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.tinybundles.core.TinyBundles;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.util.tracker.ServiceTracker;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidationProviderResolver;
-import javax.validation.Validator;
-import javax.validation.constraints.Min;
-import javax.validation.spi.ValidationProvider;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import javax.inject.Inject;
+import java.io.InputStream;
 
+import static org.ops4j.pax.exam.CoreOptions.bundleStartLevel;
+import static org.ops4j.pax.exam.CoreOptions.frameworkStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.streamBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 /**
@@ -47,21 +49,11 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 @RunWith(PaxExam.class)
 public class HibernateValidationTest {
 
-    static class ValidateMe {
-        @Min(1)
-        private int number;
-
-        public ValidateMe(int number) {
-            this.number = number;
-        }
-
-        public int getNumber() {
-            return number;
-        }
-    }
+    @Inject
+    BundleContext bundleContext;
 
     @Configuration
-    public static Option[] configuration() {
+    public Option[] configuration() {
         return new Option[] {
                 mavenBundle().groupId("javax.validation")
                         .artifactId("validation-api")
@@ -96,7 +88,9 @@ public class HibernateValidationTest {
                 mavenBundle().groupId("org.codehaus.woodstox")
                         .artifactId("stax2-api")
                         .versionAsInProject(),
-                //debugConfiguration(), // nor this
+                streamBundle(mockWhiteboardBundle()).startLevel(10),
+                streamBundle(mockServiceBundle()).startLevel(20),
+                frameworkStartLevel(30),
                 systemProperty("java.awt.headless").value("true"),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
@@ -104,32 +98,45 @@ public class HibernateValidationTest {
         };
     }
 
-    @Test
-    @Ignore
-    public void defaultProvider() {
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        Set<ConstraintViolation<ValidateMe>> violations = validator.validate(new ValidateMe(0));
-        Assert.assertEquals(1, violations.size());
+//    @ProbeBuilder
+//    public TestProbeBuilder probeConfiguration(TestProbeBuilder probe) {
+//        // makes sure the generated Test-Bundle contains this import!
+//        probe.setHeader(Constants.BUNDLE_SYMBOLICNAME, "com.basistech.hibernate-validator-test");
+//        probe.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "com.basistech.hibernateitest.mw,*");
+//        return probe;
+//    }
+
+
+    private InputStream mockWhiteboardBundle() {
+        return TinyBundles.bundle()
+                .add(MockWhiteboardActivator.class)
+                .add(MockWhiteboard.class)
+                .add(MockWhiteboardService.class)
+                .set(Constants.IMPORT_PACKAGE, "org.osgi.framework,org.slf4j")
+                .set(Constants.EXPORT_PACKAGE, "com.basistech.hibernateitest.mw")
+                .set(Constants.BUNDLE_ACTIVATOR, MockWhiteboardActivator.class.getName())
+                .build(TinyBundles.withClassicBuilder());
+    }
+
+    private InputStream mockServiceBundle() {
+        return TinyBundles.bundle()
+                .add(MockServiceActivator.class)
+                .add(MockService.class)
+                .add(ValidateMe.class)
+                .set(Constants.IMPORT_PACKAGE, "com.basistech.hibernateitest.mw,org.osgi.framework,org.osgi.util.tracker,"
+                        + "org.slf4j,javax.validation,org.hibernate.validator,"
+                        + "javax.validation.bootstrap")
+                .set(Constants.BUNDLE_ACTIVATOR, MockServiceActivator.class.getName())
+                .build(TinyBundles.withClassicBuilder());
     }
 
     @Test
-    public void withConfiguration() {
-        HibernateValidatorConfiguration configuration =
-                Validation.byProvider(HibernateValidator.class)
-                         .providerResolver(new ValidationProviderResolver() {
-                             @Override
-                             public List<ValidationProvider<?>> getValidationProviders() {
-                                 ValidationProvider<HibernateValidatorConfiguration> prov = new HibernateValidator();
-                                 List<ValidationProvider<?>> provs = new ArrayList<>();
-                                 provs.add(prov);
-                                 return provs;
-                             }
-                         })
-                        .configure();
-        //configuration.externalClassLoader(Thread.currentThread().getContextClassLoader());
-        Validator validator = configuration.buildValidatorFactory().getValidator();
-        Thread.currentThread().setContextClassLoader(null);
-        Set<ConstraintViolation<ValidateMe>> violations = validator.validate(new ValidateMe(0));
-        Assert.assertEquals(1, violations.size());
+    public void withConfiguration() throws Exception {
+        ServiceTracker<Runnable, Runnable> tracker
+                = new ServiceTracker<>(bundleContext, Runnable.class.getCanonicalName(), null);
+        tracker.open();
+        tracker.waitForService(0);
+        Runnable whiteboardRunnable = tracker.getService();
+        whiteboardRunnable.run();
     }
 }
