@@ -46,7 +46,8 @@ public class MockService implements Runnable {
                             }
                         })
                         .configure();
-        //configuration.externalClassLoader(Thread.currentThread().getContextClassLoader());
+        //Comment the following in to make it work
+        //Thread.currentThread().setContextClassLoader(MockService.class.getClassLoader());
         Validator validator = configuration.buildValidatorFactory().getValidator();
         Set<ConstraintViolation<ValidateMe>> violations = validator.validate(new ValidateMe(0));
         if (violations.size() == 0) {

@@ -123,9 +123,13 @@ public class HibernateValidationTest {
                 .add(MockServiceActivator.class)
                 .add(MockService.class)
                 .add(ValidateMe.class)
-                .set(Constants.IMPORT_PACKAGE, "com.basistech.hibernateitest.mw,org.osgi.framework,org.osgi.util.tracker,"
+                .set(Constants.IMPORT_PACKAGE, "com.basistech.hibernateitest.mw,org.osgi.framework,"
+                        + "org.osgi.util.tracker,"
+                        + "javax.validation.constraints,"
                         + "org.slf4j,javax.validation,org.hibernate.validator,"
-                        + "javax.validation.bootstrap")
+                        + "javax.validation.bootstrap,"
+                        + "javax.el,"
+                        + "com.sun.el")
                 .set(Constants.BUNDLE_ACTIVATOR, MockServiceActivator.class.getName())
                 .build(TinyBundles.withClassicBuilder());
     }

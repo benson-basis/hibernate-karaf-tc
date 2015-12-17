@@ -34,6 +34,7 @@ public class MockWhiteboard implements MockWhiteboardService {
                 thing.run();
             }
         };
+        thread.setContextClassLoader(getClass().getClassLoader());
         thread.run();
         try {
             thread.join();
